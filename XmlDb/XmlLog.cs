@@ -9,14 +9,14 @@ namespace XmlDataBase
         private readonly string PathFile;
         internal XmlTable LogDataObject { get; set; }
 
-        public XmlLog(string pathFile,string tableName, Dictionary<string, Type> Fields)
+        internal XmlLog(string pathFile,string tableName, Dictionary<string, Type> Fields)
         {
             PathFile = pathFile;
             LogDataObject = new XmlTable();
             LogDataObject.CreateTable(tableName, Fields);
         }
 
-        public void Add(Dictionary<string, string> myData, string operation, string tableName)
+        internal void Add(Dictionary<string, string> myData, string operation, string tableName)
         {
             string log=string.Empty;
             foreach (var item in myData)

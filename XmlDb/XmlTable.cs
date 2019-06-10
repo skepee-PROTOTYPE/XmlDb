@@ -11,12 +11,12 @@ namespace XmlDataBase
         internal string TableName { get; set; }
         internal Dictionary<string, Type> Properties { get; set; }
 
-        public XmlTable()
+        internal XmlTable()
         {
             Properties = new Dictionary<string, Type>();
         }
 
-        public void CreateTable(string name, Dictionary<string, Type> Fields)
+        internal void CreateTable(string name, Dictionary<string, Type> Fields)
         {
             TableName = name;
             Properties = Fields;
@@ -35,7 +35,7 @@ namespace XmlDataBase
             }
         }
 
-        private string SearchString(Dictionary<string, string> myCurrentData)
+        internal string SearchString(Dictionary<string, string> myCurrentData)
         {
             string strSearch = string.Empty;
             foreach (var item in myCurrentData)
@@ -52,7 +52,7 @@ namespace XmlDataBase
             return strSearch;
         }
 
-        public void Update(Dictionary<string, string> myCurrentData, Dictionary<string, string> myNewData)
+        internal void Update(Dictionary<string, string> myCurrentData, Dictionary<string, string> myNewData)
         {
             string strSearch = SearchString(myCurrentData);
 
@@ -70,7 +70,7 @@ namespace XmlDataBase
             }
         }
 
-        public void Remove(Dictionary<string, string> myData)
+        internal void Remove(Dictionary<string, string> myData)
         {
             string strSearch = SearchString(myData);
 
@@ -85,7 +85,7 @@ namespace XmlDataBase
             }
         }
 
-        public void Add(Dictionary<string, string> myData)
+        internal void Add(Dictionary<string, string> myData)
         {
             DataRow drAdd = Dt.NewRow();
 
@@ -96,7 +96,7 @@ namespace XmlDataBase
             Dt.Rows.Add(drAdd);
         }
 
-        public List<Dictionary<string, string>> List()
+        internal List<Dictionary<string, string>> List()
         {
             var l = new List<Dictionary<string, string>>();
 
