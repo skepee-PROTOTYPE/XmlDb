@@ -1,53 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Text;
+using System.Linq;
 
 namespace XmlDataBase
 {
-    public class XmlLog
+    internal class XmlLog
     {
-        private string PathFile;
-        public DataSet Ds { get; set; }
-        internal XmlDataTable LogDataObject { get; set; }
+        private readonly string PathFile;
+        internal XmlTable LogDataObject { get; set; }
 
         public XmlLog(string pathFile,string tableName, Dictionary<string, Type> Fields)
         {
             PathFile = pathFile;
-            Ds = new DataSet();
-            LogDataObject = new XmlDataTable();
+            LogDataObject = new XmlTable();
             LogDataObject.CreateTable(tableName, Fields);
         }
 
-        //public void Init()
-        //{
-        //    //DtLog.Columns.Add("id", typeof(int));
-        //    //DtLog.Columns.Add("date", typeof(DateTime));
-        //    //DtLog.Columns.Add("log", typeof(string));
-        //    //DtLog.PrimaryKey = new DataColumn[] { DtLog.Columns[0] };
-        //    //DtLog.Columns[0].AutoIncrement = true;
-
-        //    if (File.Exists(PathFile))
-        //    {
-        //        Ds.ReadXml(PathFile);
-        //    }
-        //    else
-        //    {
-        //        Ds.WriteXml(PathFile);
-        //    }
-        //}
-
-
-        public void Add(Dictionary<string, string> myData)
+        public void Add(Dictionary<string, string> myData, string operation, string tableName)
         {
-            DataRow drAdd = LogDataObject.Dt.NewRow();
-
+            string log=string.Empty;
             foreach (var item in myData)
+                log += "Field: '" + item.Key + "' Value: '" + item.Value +"', ";
+
+            log=log.Substring(0, log.Length - 2) +".";
+            log= "Operation '" + operation + "' in table: '" + tableName + "' : " + log;
+
+            Dictionary<string, string> myLogData = new Dictionary<string, string>
             {
-                drAdd[item.Key] = item.Value;
-            }
-            LogDataObject.Dt.Rows.Add(drAdd);
+                { LogDataObject.Properties.ElementAt(1).Key, DateTime.Now.ToString() },
+                { LogDataObject.Properties.ElementAt(2).Key, log }
+            };
+
+            LogDataObject.Add(myLogData);
+            LogDataObject.Dt.AcceptChanges();
             LogDataObject.Dt.WriteXml(PathFile);
         }
     }

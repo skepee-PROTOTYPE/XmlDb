@@ -8,47 +8,52 @@ namespace XmlDataBase
 {
     public class XmlDb
     {
-        private string PathFile { get; set; }
-        public string DataBaseName { get; set; }
+        private string DataBasePathFile { get; set; }
         private DataSet Ds { get; set; }
-        public string DataSetName { get; set; }
-        public string DataSetNameSpace { get; set; }
-        private List<XmlDataTable> ListDataObjects { get; set; }
+        private List<XmlTable> ListDataObjects { get; set; }
         private XmlLog LogDataObject { get; set; }
 
-        public void AddLogTable(string logFile, string tableName, Dictionary<string, Type> Fields)
+        private void AddLogTable(string logFile)
         {
-            LogDataObject = new XmlLog(logFile, tableName, Fields);
+            Dictionary<string, Type> mylogfields = new Dictionary<string, Type>
+            {
+                { "Id", typeof(int) },
+                { "Date", typeof(DateTime) },
+                { "Log", typeof(string) }
+            };
+
+            LogDataObject = new XmlLog(logFile, "log", mylogfields);
         }
 
-
-        private void AddLogItem(Dictionary<string, string> myData)
+        private void ClearData()
         {
-            LogDataObject.Add(myData);
-            Ds.AcceptChanges();
-            Ds.WriteXml(PathFile);
+            ListDataObjects.Clear();
+            Ds.Tables.Clear();
         }
 
-
-        private XmlDataTable GetItem(string tableName)
+        private void AddLogItem(Dictionary<string, string> myData, string operation, string tableName)
         {
-            var xmldt = ListDataObjects.ToList().FirstOrDefault(x => x.DataTableName.Equals(tableName, StringComparison.InvariantCultureIgnoreCase));
+            LogDataObject.Add(myData, operation, tableName);
+        }
 
+        private XmlTable GetItem(string tableName)
+        {
+            var xmldt = ListDataObjects.ToList().FirstOrDefault(x => x.TableName.Equals(tableName, StringComparison.InvariantCultureIgnoreCase));
             return xmldt;
         }
 
         public void LoadXmlDb()
         {
-            if (File.Exists(PathFile))
+            this.ClearData();
+            if (File.Exists(DataBasePathFile))
             {
-                Ds.ReadXml(PathFile);
+                Ds.ReadXml(DataBasePathFile);
 
                 foreach (DataTable dt in Ds.Tables)
                 {
-
-                    XmlDataTable myXmlData = new XmlDataTable
+                    XmlTable myXmlData = new XmlTable
                     {
-                        DataTableName = dt.TableName,
+                        TableName = dt.TableName,
                         Dt = dt
                     };
 
@@ -62,7 +67,6 @@ namespace XmlDataBase
             }
         }
 
-
         public void UpdateItem(string tableName, Dictionary<string, string> myCurrentData, Dictionary<string, string> myNewData)
         {
             var xmldt = GetItem(tableName);
@@ -71,8 +75,11 @@ namespace XmlDataBase
             {
                 xmldt.Update(myCurrentData, myNewData);
                 Ds.AcceptChanges();
-                Ds.WriteXml(PathFile);
+                Ds.WriteXml(DataBasePathFile);
             }
+
+            if (LogDataObject!=null)
+                AddLogItem(myNewData, "update",tableName);
         }
 
         public void RemoveItem(string tableName, Dictionary<string, string> myData)
@@ -83,8 +90,11 @@ namespace XmlDataBase
             {
                 xmldt.Remove(myData);
                 Ds.AcceptChanges();
-                Ds.WriteXml(PathFile);
+                Ds.WriteXml(DataBasePathFile);
             }
+
+            if (LogDataObject != null)
+                AddLogItem(myData, "remove", tableName);
         }
 
         public void AddItem(string tableName,Dictionary<string, string> myData)
@@ -95,24 +105,11 @@ namespace XmlDataBase
             {
                 xmldt.Add(myData);
                 Ds.AcceptChanges();
-                Ds.WriteXml(PathFile);
+                Ds.WriteXml(DataBasePathFile);
             }
 
-            // TODO
-            Dictionary<string, string> dicLog = new Dictionary<string, string>();
-            foreach (var x in LogDataObject.LogDataObject.Properties)
-            {
-
-
-            }
-
-
-            AddLogItem(new Dictionary<string, string>
-            {
-                    {"Name", "Name1" },
-                    {"Type", "1000" }
-            });
-
+            if (LogDataObject != null)
+                AddLogItem(myData, "add", tableName);
         }
 
         public void AddListItem(string tableName, List<Dictionary<string, string>> myData)
@@ -124,16 +121,18 @@ namespace XmlDataBase
                 foreach (var item in myData)
                 {
                     AddItem(tableName, item);
+
+                    if (LogDataObject != null)
+                        AddLogItem(item, "add", tableName);
                 }
                 Ds.AcceptChanges();
-                Ds.WriteXml(PathFile);
+                Ds.WriteXml(DataBasePathFile);
             }
         }
 
-
         public void AddTable(string tableName, Dictionary<string, Type> myData)
         {
-            XmlDataTable xmldt = new XmlDataTable();
+            XmlTable xmldt = new XmlTable();
             xmldt.CreateTable(tableName, myData);
 
             if (xmldt != null)
@@ -143,14 +142,14 @@ namespace XmlDataBase
             }
         }
 
-        public XmlDb(string name, string path, string dataSetName, string dataSetNameSpace)
+        public XmlDb(string path, string logPathFile)
         {
-            this.DataSetName = dataSetName;
-            this.DataSetNameSpace = dataSetNameSpace;
-            this.PathFile = path;
-            this.DataBaseName = name;
-            this.ListDataObjects = new List<XmlDataTable>();
+            this.DataBasePathFile = path;
+            this.ListDataObjects = new List<XmlTable>();
             this.Ds = new DataSet();
+
+            if (!string.IsNullOrEmpty(logPathFile))
+                this.AddLogTable(logPathFile);
         }
 
         public List<Dictionary<string, string>> GetListItems(string tableName)
