@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using XmlDataBase;
 
 namespace ConsoleApp
@@ -9,26 +8,11 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            XmlDb mydb = new XmlDb("mydb", @"D:\xmldb2.xml", "myDataset", "myDatasetnamespace");
+            Console.WriteLine("Creating new database");
+            Console.WriteLine(" ");
+            Console.WriteLine("**************************************");
 
-            //read existing file
-            //mydb.LoadXmlDb();
-            //PrintList("Security", mydb.GetListItems("Security"));
-            //PrintList("Order", mydb.GetListItems("Order"));
-            //PrintList("Contact", mydb.GetListItems("Contact"));
-
-
-
-
-            // add log table
-            Dictionary<string, Type> mylogfields = new Dictionary<string, Type>
-            {
-                { "Id", typeof(int) },
-                { "Date", typeof(DateTime) },
-                { "Log", typeof(string) }
-            };
-            mydb.AddLogTable(@"D:\xmldb2.log", "log", mylogfields);
-
+            XmlDb mydb = new XmlDb(@"D:\xmldbtest.xml", @"D:\xmldbtestlog.xml");
 
             //create tables from scratch
             Dictionary<string, Type> myfields = new Dictionary<string, Type>
@@ -55,13 +39,11 @@ namespace ConsoleApp
                     {"Name", "Name1" },
                     {"Type", "1000" }
             },
-
                 new Dictionary<string, string>
             {
                     {"Name", "Name2" },
                     {"Type", "2000" }
             },
-
                 new Dictionary<string, string>
             {
                     {"Name", "Name3" },
@@ -72,8 +54,8 @@ namespace ConsoleApp
             //crud operations on tables 
             mydb.AddItem("Contact", new Dictionary<string, string>
             {
-                {"Name", "Pippo" },
-                {"Surname", "Paperino"}
+                {"Name", "Name1" },
+                {"Surname", "Surname1"}
             });
 
             mydb.AddItem("Security", new Dictionary<string, string>
@@ -112,10 +94,18 @@ namespace ConsoleApp
                 {"Type", "TypeSecurity0"}
             });
 
-           
+
+            Console.WriteLine("Printing table data:");
             PrintList("Security", mydb.GetListItems("Security"));
+            Console.WriteLine(" ");
+            Console.WriteLine("Printing table data:");
             PrintList("Order", mydb.GetListItems("Order"));
+            Console.WriteLine(" ");
+            Console.WriteLine("Printing table data:");
             PrintList("Contact", mydb.GetListItems("Contact"));
+            Console.WriteLine(" ");
+            Console.WriteLine(" ");
+            Console.WriteLine("completed. ");
 
             Console.ReadLine();
         }
