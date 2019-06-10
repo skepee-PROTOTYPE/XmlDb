@@ -41,7 +41,7 @@ The project is based on three different classes:
 **XmlTable**: used for CRUD operations.
 
 
-**Public Methods**
+**Internal Methods**
 - ***CreateTable***
 - ***Update***
 - ***Remove***
@@ -50,7 +50,7 @@ The project is based on three different classes:
 
 ***
 **XmlLog**: used for logging.
-
+**Internal Methods**
 - ***Add***
 
 
