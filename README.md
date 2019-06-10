@@ -7,7 +7,7 @@
 4. No limitations on number of fields.
 5. CRUD operations on tables.
 6. Primary key setting property on tables.
-7. By using a dictionary the tables fields can be set very easily.
+7. Fields property set very easily by using dictionary.
 
 
 **Description**
